@@ -1,6 +1,18 @@
 # An Operating System in under 1000 lines
 ## Installation
-To run this program you need a couple of dependencies which I will list another day.  
+To run this program you need a couple of dependencies.  
+### Ubuntu
+```
+sudo apt update && sudo apt install -y clang llvm lld qemu-system-riscv32 curl
+curl -LO https://github.com/qemu/qemu/raw/v8.0.4/pc-bios/opensbi-riscv32-generic-fw_dynamic.bin
+```
+### macOS
+```
+brew install llvm lld qemu
+export PATH="$PATH:$(brew --prefix)/opt/llvm/bin"
+which llvm-objcopy
+/opt/homebrew/opt/llvm/bin/llvm-objcopy
+```
 to run, all you need to do is :
 ```
 chmod +x run.sh
