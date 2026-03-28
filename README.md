@@ -1,4 +1,5 @@
 # An Operating System in under 1000 lines
+The goal of this project was for me to learn the inside of a small operating system, and the basics of the RISC-V architecture.
 ## Installation
 To run this program you need a couple of dependencies.  
 ### Ubuntu
