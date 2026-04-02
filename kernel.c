@@ -113,8 +113,14 @@ void kernel_entry(void) {
 }
 
 void kernel_main(void) {
+	memset(__bss, 0, (size_t) __bss_end - (size_t) __bss);
+
 	printf("\nHello %s \n", "World!");
     printf("1 + 2 = %d, %x\n", 1 + 2, 0x1234abcd);
+
+    WRITE_CSR(stvec, (uint32_t) kernel_entry);
+    __asm__ __volatile__("unimp");
+
 	const char* s = "\n\nHello World!\n";
 	for (int i = 0; s[i] != '\0'; i++) {
 		putchar(s[i]);
