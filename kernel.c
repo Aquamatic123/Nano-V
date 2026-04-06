@@ -1,4 +1,4 @@
-#include "kernel.h"
+include "kernel.h"
 #include "common.h"
 
 extern char __bss[], __bss_end[], __stack_top[];
@@ -16,9 +16,9 @@ struct sbiret sbi_call(long arg0, long arg1, long arg2, long arg3, long arg4,
 
 	__asm__ __volatile("ecall"
 					   : "=r"(a0), "=r"(a1)
-					  : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5),
-					  "r"(a6), "r"(a7)
-					  : "memory");
+					   : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5),
+						 "r"(a6), "r"(a7)
+					   : "memory");
 	return (struct sbiret){.error = a0, .value = a1};
 }
 
@@ -109,7 +109,7 @@ void kernel_entry(void) {
         "lw s11, 4 * 29(sp)\n"
         "lw sp,  4 * 30(sp)\n"
         "sret\n"
-    );
+		);
 }
 
 void kernel_main(void) {
