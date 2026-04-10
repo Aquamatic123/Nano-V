@@ -202,10 +202,36 @@ void kernel_entry(void) {
         "lw s8,  4 * 26(sp)\n"
         "lw s9,  4 * 27(sp)\n"
         "lw s10, 4 * 28(sp)\n"
-        "lw s11, 4 * 29(sp)\n"
-        "lw sp,  4 * 30(sp)\n"
-        "sret\n"
+		"lw s11, 4 * 29(sp)\n"
+		"lw sp,  4 * 30(sp)\n"
+		"sret\n"
 		);
+}
+
+void delay(void) {
+    for (int i = 0; i < 30000000; i++)
+        __asm__ __volatile__("nop"); // do nothing
+}
+
+struct process *proc_a;
+struct process *proc_b;
+
+void proc_a_entry(void) {
+    printf("starting process A\n");
+    while (1) {
+        putchar('A');
+        switch_context(&proc_a->sp, &proc_b->sp);
+        delay();
+    }
+}
+
+void proc_b_entry(void) {
+	printf("starting process B\n");
+	while (1) {
+		putchar('B');
+		switch_context(&proc_b->sp, &proc_a->sp);
+		delay();
+	}
 }
 
 void kernel_main(void) {
@@ -220,6 +246,11 @@ void kernel_main(void) {
     printf("1 + 2 = %d, %x\n", 1 + 2, 0x1234abcd);
 
     WRITE_CSR(stvec, (uint32_t) kernel_entry);
+
+	proc_a = create_process((uint32_t) proc_a_entry);
+    proc_b = create_process((uint32_t) proc_b_entry);
+    proc_a_entry();
+
     __asm__ __volatile__("unimp");
 
 	const char* s = "\n\nHello World!\n";
