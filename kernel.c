@@ -134,7 +134,7 @@ __attribute__((naked))
 __attribute__((aligned(4)))
 void kernel_entry(void) {
     __asm__ __volatile__(
-        "csrw sscratch, sp\n"
+        "csrrw sp, sscratch, sp\n"
         "addi sp, sp, -4 * 31\n"
         "sw ra,  4 * 0(sp)\n"
         "sw gp,  4 * 1(sp)\n"
@@ -169,6 +169,11 @@ void kernel_entry(void) {
 
         "csrr a0, sscratch\n"
         "sw a0, 4 * 30(sp)\n"
+
+		// Reset the kernel stack.
+        "addi a0, sp, 4 * 31\n"
+        "csrw sscratch, a0\n"
+
 
         "mv a0, sp\n"
         "call handle_trap\n"
@@ -220,6 +225,7 @@ struct process *current_proc;
 struct process *idle_proc;
 
 void yield(void) {
+
 	struct process *next = idle_proc;
 	for (int i = 0; i < PROCS_MAX; i++) {
 		struct process *proc = &procs[(current_proc->pid + i) % PROCS_MAX];
@@ -232,6 +238,12 @@ void yield(void) {
 	// check if theres no runnable process other than the current one
 	if (next == current_proc)
 		return;
+
+	__asm__ __volatile__(
+		"csrw sscratch, %[sscratch]\n"
+		:
+		: [sscratch] "r" ((uint32_t) &next->stack[sizeof(next->stack)])
+		);
 
 	struct process *prev = current_proc;
 	current_proc = next;
