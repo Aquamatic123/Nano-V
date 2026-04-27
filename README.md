@@ -1,7 +1,7 @@
 # An Operating System written in under 1000 lines of C
 The goal of this project was for me to learn the inside of a small operating system and the basics of the RISC-V architecture.
 ## Installation
-To run this program you need a couple of dependencies.  
+To run this program you need a couple of dependencies. here is how to install them depending on your OS.  
 ### Ubuntu:
 ```
 sudo apt update && sudo apt install -y clang llvm lld qemu-system-riscv32 curl
