@@ -70,16 +70,18 @@ paddr_t alloc_pages(uint32_t n) {
 
 struct process procs[PROCS_MAX]; // All process control structures.
 
+extern char __kernel_base[];
+
 struct process *create_process(uint32_t pc) {
-    // Find an unused process control structure.
-    struct process *proc = NULL;
-    int i;
-    for (i = 0; i < PROCS_MAX; i++) {
-        if (procs[i].state == PROC_UNUSED) {
-            proc = &procs[i];
-            break;
-        }
-    }
+	// Find an unused process control structure.
+	struct process *proc = NULL;
+	int i;
+	for (i = 0; i < PROCS_MAX; i++) {
+		if (procs[i].state == PROC_UNUSED) {
+			proc = &procs[i];
+			break;
+		}
+	}
 
     if (!proc)
         PANIC("no free process slots");
@@ -101,10 +103,17 @@ struct process *create_process(uint32_t pc) {
     *--sp = 0;                      // s0
     *--sp = (uint32_t) pc;          // ra
 
+	// Map kernel pages.
+	uint32_t *page_table = (uint32_t *) alloc_pages(1);
+    for (paddr_t paddr = (paddr_t) __kernel_base;
+         paddr < (paddr_t) __free_ram_end; paddr += PAGE_SIZE)
+        map_page(page_table, paddr, paddr, PAGE_R | PAGE_W | PAGE_X);
+
     // Initialize fields.
     proc->pid = i + 1;
     proc->state = PROC_RUNNABLE;
     proc->sp = (uint32_t) sp;
+	proc->page_table = page_table;
     return proc;
 }
 
